@@ -62,7 +62,10 @@ func main() {
 	langDataSlice := result["data"]
 	langDataGraph := langGraphGen(langDataSlice)
 
-	err = gistUpdater(langDataGraph)
+	status, err := gistUpdater(langDataGraph)
+	for i := 0; status != http.StatusOK && i <= 3; i++ {
+		_, err = gistUpdater(langDataGraph)
+	}
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -98,7 +101,7 @@ func langGraphGen(langDataSlice []Language) string {
 //
 //
 // This Function Updates Gists
-func gistUpdater(content string) (err error) {
+func gistUpdater(content string) (statusCode int, err error) {
 
 	reqBody, err := json.Marshal(map[string]interface{}{
 		"description": "Weekly Development Break Down",
@@ -116,7 +119,7 @@ func gistUpdater(content string) (err error) {
 
 	req, err := http.NewRequest("PATCH", "https://api.github.com/gists/b6786ee02c58a21103bb7112be12163c", bytes.NewBuffer(reqBody))
 	if err != nil {
-		return fmt.Errorf("failed to create request %v", err)
+		return 1, fmt.Errorf("failed to create request %v", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -128,11 +131,12 @@ func gistUpdater(content string) (err error) {
 		Timeout: time.Duration(5 * time.Second),
 	}
 	resp, err := client.Do(req)
+	statusCode = resp.StatusCode
 	if err != nil {
-		return fmt.Errorf("failed to get response %v", err)
+		return statusCode, fmt.Errorf("failed to get response %v", err)
 	}
 
 	defer resp.Body.Close()
 
-	return nil
+	return statusCode, nil
 }
