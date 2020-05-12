@@ -62,17 +62,24 @@ func main() {
 
 	langDataSlice := result["data"]
 	langDataGraph := langGraphGen(langDataSlice)
-
+	fmt.Println("Begining Gist Update")
 	err = gistUpdater(langDataGraph)
-	for i = 0; err.Error() == "RESP_ERROR"; i++ {
-		err = gistUpdater(langDataGraph)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
+
+	fmt.Println("test 6")
+
 	if err != nil {
-		log.Fatal(err)
+		for i = 0; err.Error() == "RESP_ERROR" && i < 2; i++ {
+			fmt.Println("test 7")
+			err = gistUpdater(langDataGraph)
+			fmt.Println("test 8")
+			if err != nil {
+				log.Fatal("Error while Gist Update", err)
+			}
+		}
+		log.Fatal("Error while Gist Uopdate", err)
 	}
+
+	fmt.Println("test 9")
 	fmt.Printf("Gist Updated Successfully\n")
 }
 
@@ -125,24 +132,25 @@ func gistUpdater(content string) (err error) {
 	if err != nil {
 		return fmt.Errorf("failed to create request %v", err)
 	}
-
+	fmt.Println("test 1")
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "Incrypto")
 	// fmt.Println(os.Getenv("GIST_TOKEN"))
 	req.SetBasicAuth("", os.Getenv("GIST_TOKEN"))
-
+	fmt.Println("test 2")
 	client := http.Client{
 		Timeout: time.Duration(5 * time.Second),
 	}
 	resp, err := client.Do(req)
+	fmt.Println("test 3")
 	if resp.StatusCode != http.StatusOK {
 		return errors.New("RESP_ERROR")
 	}
 	if err != nil {
 		return fmt.Errorf("failed to get response %v", err)
 	}
-
+	fmt.Println("test 4")
 	defer resp.Body.Close()
-
-	return nil
+	fmt.Println("test 5")
+	return err
 }
