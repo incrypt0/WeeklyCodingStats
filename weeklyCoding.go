@@ -26,7 +26,7 @@ func main() {
 
 	for i < 2 {
 		log.Println("Getting Json From WakaTime")
-		resp, err = http.Get("WAKATIME_EMBED_URL")
+		resp, err = http.Get(os.Getenv("WAKATIME_EMBED_URL"))
 		i++
 	}
 	if err != nil {
@@ -58,9 +58,24 @@ func main() {
 		}
 		fmt.Printf("%s\n", string(prettyResult))
 	}
-	var buf bytes.Buffer
 
-	for _, item := range result["data"] {
+	langDataSlice := result["data"]
+	langDataGraph := langGraphGen(langDataSlice)
+
+	err = gistUpdater(langDataGraph)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Gist Updated Successfully\n")
+}
+
+//
+//
+// This Function Generates the ascii graph
+
+func langGraphGen(langDataSlice []Language) string {
+	var buf bytes.Buffer
+	for _, item := range langDataSlice {
 
 		pMod := item.Percent / 3
 		fmt.Println(len(item.Name), 8-len(fmt.Sprintf("%.2f", item.Percent)))
@@ -77,11 +92,13 @@ func main() {
 
 	}
 	fmt.Println(buf.String())
-
-	gistUpdater(buf.String())
+	return buf.String()
 }
 
-func gistUpdater(content string) {
+//
+//
+// This Function Updates Gists
+func gistUpdater(content string) (err error) {
 
 	reqBody, err := json.Marshal(map[string]interface{}{
 		"description": "Weekly Development Break Down",
@@ -99,7 +116,7 @@ func gistUpdater(content string) {
 
 	req, err := http.NewRequest("PATCH", "https://api.github.com/gists/b6786ee02c58a21103bb7112be12163c", bytes.NewBuffer(reqBody))
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("failed to create request %v", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -112,15 +129,10 @@ func gistUpdater(content string) {
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("failed to get response %v", err)
 	}
 
 	defer resp.Body.Close()
 
-	// body, err := ioutil.ReadAll(resp.Body)
-	// if err != nil {
-	// 	log.Fatal(err)
-	//
-	//  }
-
+	return nil
 }
