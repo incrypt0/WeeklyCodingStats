@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -62,9 +63,12 @@ func main() {
 	langDataSlice := result["data"]
 	langDataGraph := langGraphGen(langDataSlice)
 
-	status, err := gistUpdater(langDataGraph)
-	for i := 0; status != http.StatusOK && i <= 3; i++ {
-		_, err = gistUpdater(langDataGraph)
+	err = gistUpdater(langDataGraph)
+	for i = 0; err.Error() == "RESP_ERROR"; i++ {
+		err = gistUpdater(langDataGraph)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 	if err != nil {
 		log.Fatal(err)
@@ -101,10 +105,10 @@ func langGraphGen(langDataSlice []Language) string {
 //
 //
 // This Function Updates Gists
-func gistUpdater(content string) (statusCode int, err error) {
+func gistUpdater(content string) (err error) {
 
 	reqBody, err := json.Marshal(map[string]interface{}{
-		"description": "Weekly Development Break Down",
+		"description": "Weekly Coding Stats 📈",
 		"files": map[string]interface{}{
 			"coding_loop": map[string]interface{}{
 				"content":  content,
@@ -114,29 +118,31 @@ func gistUpdater(content string) (statusCode int, err error) {
 	})
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("failed to marshal json", err)
 	}
 
 	req, err := http.NewRequest("PATCH", "https://api.github.com/gists/b6786ee02c58a21103bb7112be12163c", bytes.NewBuffer(reqBody))
 	if err != nil {
-		return 1, fmt.Errorf("failed to create request %v", err)
+		return fmt.Errorf("failed to create request %v", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "Incrypto")
 	// fmt.Println(os.Getenv("GIST_TOKEN"))
-	req.SetBasicAuth("incrypt0", os.Getenv("GIST_TOKEN"))
+	req.SetBasicAuth("", os.Getenv("GIST_TOKEN"))
 
 	client := http.Client{
 		Timeout: time.Duration(5 * time.Second),
 	}
 	resp, err := client.Do(req)
-	statusCode = resp.StatusCode
+	if resp.StatusCode != http.StatusOK {
+		return errors.New("RESP_ERROR")
+	}
 	if err != nil {
-		return statusCode, fmt.Errorf("failed to get response %v", err)
+		return fmt.Errorf("failed to get response %v", err)
 	}
 
 	defer resp.Body.Close()
 
-	return statusCode, nil
+	return nil
 }
