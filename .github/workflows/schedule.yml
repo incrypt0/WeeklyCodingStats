@@ -1,9 +1,7 @@
 name : Coding Stats Gist Updater
 on:
-  # push:
-  #   branches: [ master]
   schedule:
-    - cron: '10 11 * * *'
+    - cron: "15 11 * * *"
 
 jobs:
   coding_stats:
