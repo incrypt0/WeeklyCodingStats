@@ -21,54 +21,15 @@ type Language struct {
 var GIST_ID string = "b6786ee02c58a21103bb7112be12163c"
 
 func main() {
-	// fmt.Println(os.Getenv("GIST_TOKEN"))
-	var result map[string][]Language
-	var i int = 0
-	var err error
-	var resp *http.Response
 
-	for i < 2 {
-		log.Println("Getting Json From WakaTime")
-		resp, err = http.Get(os.Getenv("WAKATIME_EMBED_URL"))
-		i++
-	}
-	i = 0
-	if err != nil {
-		log.Fatal("", err)
-	}
-
-	defer resp.Body.Close()
-	if err != nil {
-		log.Fatal(err)
-	}
-	if resp.StatusCode == http.StatusOK {
-		bodyBytes, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			log.Fatal("failed to read response body", err)
-		}
-
-		// bodyString := string(bodyBytes)
-		// log.Println(bodyString)
-		err = json.Unmarshal(bodyBytes, &result)
-		if err != nil {
-			log.Fatal(err)
-		}
-		prettyResult, err := json.MarshalIndent(result, "", "    ")
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("%s\n", string(prettyResult))
-	}
-
-	langDataSlice := result["data"]
-	langDataGraph := langGraphGen(langDataSlice)
+	langDataGraph, _ := GetDataFromEmbedUrl()
 	fmt.Println("Begining Gist Update")
-	err = gistUpdater(langDataGraph)
+	err := gistUpdater(langDataGraph)
 
 	fmt.Println("test 6")
 
 	if err != nil {
-		for i = 0; err.Error() == "RESP_ERROR" && i < 2; i++ {
+		for i := 0; err.Error() == "RESP_ERROR" && i < 2; i++ {
 			fmt.Println("test 7")
 			err = gistUpdater(langDataGraph)
 			fmt.Println("test 8")
@@ -86,6 +47,50 @@ func main() {
 //
 //
 //This Function Gets data from embed url
+func GetDataFromEmbedUrl() (langDataGraph string, err error) {
+	var i int = 0
+	var resp *http.Response
+	var result map[string][]Language
+	var funcName string = "GetDataFromEmbedUrl : "
+	for i < 2 {
+		log.Println("Getting Json From WakaTime")
+		resp, err = http.Get(os.Getenv("WAKATIME_EMBED_URL"))
+		i++
+	}
+
+	if err != nil {
+		return "", fmt.Errorf("%v failed getting json from embed url %v", funcName, err)
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusOK {
+		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return "", fmt.Errorf("%v failed to read response body %v", funcName, err)
+
+		}
+
+		// bodyString := string(bodyBytes)
+		// log.Println(bodyString)
+		err = json.Unmarshal(bodyBytes, &result)
+		if err != nil {
+			return "", fmt.Errorf("%v%v", funcName, err)
+		}
+		prettyResult, err := json.MarshalIndent(result, "", "    ")
+		if err != nil {
+			return "", fmt.Errorf("%v%v", funcName, err)
+		}
+		fmt.Printf("%s\n", string(prettyResult))
+	}
+	langDataSlice := result["data"]
+	langDataGraph = langGraphGen(langDataSlice)
+	return langDataGraph, nil
+}
+
+//
+//
+//
 
 //
 //
