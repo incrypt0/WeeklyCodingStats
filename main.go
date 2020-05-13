@@ -26,6 +26,9 @@ func main() {
 
 	if len(argsWithoutProg) > 0 && argsWithoutProg[0] == "-api" {
 		fmt.Println("Using API")
+		if WAKATIME_API_KEY == "" {
+			log.Fatal("Error WAKA_TIME_API_KEY env Empty")
+		}
 		langDataGraph, _ = GetDataFromApi()
 	} else {
 		fmt.Println("Using Embed Url")
