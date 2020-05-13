@@ -1,7 +1,8 @@
-name : Coding Stats Gist Updater
+name : Update Coding Stats
 on:
+  push: 
   schedule:
-    - cron: "15 11 * * *"
+    - cron: "25 11 * * *"
 
 jobs:
   coding_stats:
