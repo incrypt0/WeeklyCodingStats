@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/incrypt0/simple_projects/hourUnit"
+	"github.com/incrypt0/WeeklyCodingStats/hourUnit"
 )
 
 var CODING_STAT_GIST_ID string = os.Getenv("GIST_ID")
