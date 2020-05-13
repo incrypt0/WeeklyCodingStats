@@ -18,6 +18,7 @@ import (
 var CODING_STAT_GIST_ID string = os.Getenv("GIST_ID")
 var WAKATIME_API_KEY string = os.Getenv("WAKATIME_API_KEY")
 var GIST_TOKEN string = os.Getenv("GIST_TOKEN")
+var WAKATIME_EMBED_URL string = os.Getenv("WAKATIME_EMBED_URL")
 
 func main() {
 	var langDataGraph string
@@ -62,7 +63,7 @@ func GetDataFromEmbedUrl() (langDataGraph string, err error) {
 	var funcName string = "GetDataFromEmbedUrl : "
 	for i < 2 {
 		log.Println("Getting Json From WakaTime")
-		resp, err = http.Get(os.Getenv("WAKATIME_EMBED_URL"))
+		resp, err = http.Get(WAKATIME_EMBED_URL)
 		i++
 	}
 
