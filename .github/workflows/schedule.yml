@@ -1,19 +1,24 @@
-name: Update gist with Todoist items
+name: Update gist with coding stats
 on:
   push:
   schedule:
     - cron: '0 */1 * * *' # Every three hours
 jobs:
   update-gist:
+    name: coding stats
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
+      - uses: actions/setup-go@v1
         with:
           ref: master
+          go-version: '1.9.3'
+      
       - name: Update gist
         uses: incrypt0/WeeklyCodingStats@master
+        run: go run main.go
         env:
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           GIST_ID: ${{ secrets.GIST_ID }}
           WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
-          WAKATIME_EMBED_URL: ${{ secrets.WAKATIME_EMBED_URL}}
+          WAKATIME_EMBED_URL: ${{ secrets.WAKATIME_EMBED_URL }}
