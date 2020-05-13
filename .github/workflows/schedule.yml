@@ -12,10 +12,13 @@ jobs:
       - uses: actions/setup-go@v2.0.3
         with:
           go-version: '1.14.2'
+        
+      - run: echo $GIST_TOKEN
+      - run: go run main.go
+      - run: echo $GIST_TOKEN
         env: 
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           GIST_ID: ${{ secrets.GIST_ID }}
           WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
           WAKATIME_EMBED_URL: ${{ secrets.WAKATIME_EMBED_URL }}
-      - run: go run main.go
                                   
