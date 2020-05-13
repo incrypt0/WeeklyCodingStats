@@ -13,7 +13,7 @@ jobs:
       - name: Update gist
         uses: incrypt0/WeeklyCodingStats@master
         env:
-          GIST_TOKEN: ${{ secrets.GH_TOKEN }}
+          GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           GIST_ID: ${{ secrets.GIST_ID }}
           WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
           WAKATIME_EMBED_URL:${{ secrets.WAKATIME_EMBED_URL}}
