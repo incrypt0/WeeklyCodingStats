@@ -3,7 +3,7 @@ on:
   # push:
   #   branches: [ master]
   schedule:
-    - cron: '47 10 * * *'
+    - cron: '0 11 * * *'
 
 jobs:
   coding_stats:
@@ -22,7 +22,7 @@ jobs:
           echo $GIST_TOKEN
         env: 
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
-          GIST_ID: ${{ secrets.GIST_ID }}
+          GIwwwST_ID: ${{ secrets.GIST_ID }}
           WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
           WAKATIME_EMBED_URL: ${{ secrets.WAKATIME_EMBED_URL }} 
        
