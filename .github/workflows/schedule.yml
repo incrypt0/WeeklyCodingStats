@@ -1,8 +1,7 @@
 name : Coding Stats Gist Updater
 on:
   push:
-    branches:
-      - master
+    branches: [ master]
 
 jobs:
   coding_stats:
@@ -10,9 +9,9 @@ jobs:
     
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-go@v1
+      - uses: actions/setup-go@v2.0.3
         with:
-          go-version: '^1.13.1'
+          go-version: '1.14.2'
         env: 
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           GIST_ID: ${{ secrets.GIST_ID }}
