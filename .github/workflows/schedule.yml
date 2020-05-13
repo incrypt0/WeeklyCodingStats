@@ -12,7 +12,8 @@ jobs:
       - uses: actions/setup-go@v2.0.3
         with:
           go-version: '1.14.2'
-        
+          
+        name: run task
       - run: echo $GIST_TOKEN
       - run: go run main.go
       - run: echo $GIST_TOKEN
