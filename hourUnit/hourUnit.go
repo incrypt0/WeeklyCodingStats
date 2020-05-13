@@ -4,20 +4,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 )
 
 type Data struct {
 	Data struct {
-		Languages []struct {
-			Name    string  `json:"name"`
-			Text    string  `json:"text"`
-			Percent float32 `json:"percent"`
-		} `json:"languages"`
+		Languages []Language `json:"languages"`
 	} `json:"data"`
 }
+type Language struct {
+	Name    string  `json:"name"`
+	Percent float32 `json:"percent"`
+	Text    string  `json:"text"`
+}
 
-func GetHours() (resultBody Data, err error) {
+func GetHours(WAKATIME_API_KEY string) (resultBody Data, err error) {
 
 	req, err := http.NewRequest("GET", "https://wakatime.com/api/v1/users/current/stats/last_7_days", nil)
 
@@ -25,7 +25,7 @@ func GetHours() (resultBody Data, err error) {
 		return Data{}, fmt.Errorf("failed to create request %v", err)
 	}
 	q := req.URL.Query()
-	q.Add("apikey", os.Getenv("WAKATIME_API_KEY"))
+	q.Add("apikey", WAKATIME_API_KEY)
 
 	req.URL.RawQuery = q.Encode()
 

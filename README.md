@@ -2,9 +2,8 @@
 
 This is a weekly coding stats
 📊   ascii bar chart generator which uses the WAKATIME API to keep track of your coding stats.
-It's inspired from Atul Cyriac Ajay's [wakatime-metrics](https://github.com/athul/wakatime-metrics) which is originally written in python.
-I just implemented it from scratch so that I can learn more about API's and Authorization in http requests and stuff like that (And also cus Iam bored af 
-😐).
+I have seen lot of people have this awesome bar chart with their weekly development breakdown.So I thought why not just try it out.
+I just implemented it from scratch in Go (There are lots of ready to use code for implementing this like [wakatime-metrics by Athul](https://github.com/athul/wakatime-metrics)) so that I can learn more about API's and Authorization in http requests and stuff like that (And also cus Iam bored af 😐).
 
 The Program uses GitHub Gists API to update a Gist.
 

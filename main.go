@@ -11,18 +11,26 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/incrypt0/simple_projects/hourUnit"
 )
 
-type Language struct {
-	Name    string  `json:"name"`
-	Percent float32 `json:"percent"`
-}
-
-var GIST_ID string = "b6786ee02c58a21103bb7112be12163c"
+var CODING_STAT_GIST_ID string = os.Getenv("GIST_ID")
+var WAKATIME_API_KEY string = os.Getenv("WAKATIME_API_KEY")
+var GIST_TOKEN string = os.Getenv("GIST_TOKEN")
 
 func main() {
+	var langDataGraph string
+	argsWithoutProg := os.Args[1:]
 
-	langDataGraph, _ := GetDataFromEmbedUrl()
+	if len(argsWithoutProg) > 0 && argsWithoutProg[0] == "-api" {
+		fmt.Println("Using API")
+		langDataGraph, _ = GetDataFromApi()
+	} else {
+		fmt.Println("Using Embed Url")
+		langDataGraph, _ = GetDataFromEmbedUrl()
+	}
+
 	fmt.Println("Begining Gist Update")
 	err := gistUpdater(langDataGraph)
 
@@ -34,7 +42,7 @@ func main() {
 			err = gistUpdater(langDataGraph)
 			fmt.Println("test 8")
 			if err != nil {
-				log.Fatal("Error while Gist Update", err)
+				log.Fatal("Error while Gist Update ", err)
 			}
 		}
 		log.Fatal("Error while Gist Uopdate", err)
@@ -50,7 +58,7 @@ func main() {
 func GetDataFromEmbedUrl() (langDataGraph string, err error) {
 	var i int = 0
 	var resp *http.Response
-	var result map[string][]Language
+	var result map[string][]hourUnit.Language
 	var funcName string = "GetDataFromEmbedUrl : "
 	for i < 2 {
 		log.Println("Getting Json From WakaTime")
@@ -84,34 +92,56 @@ func GetDataFromEmbedUrl() (langDataGraph string, err error) {
 		fmt.Printf("%s\n", string(prettyResult))
 	}
 	langDataSlice := result["data"]
-	langDataGraph = langGraphGen(langDataSlice)
+	langDataGraph = langGraphGen(langDataSlice, false)
 	return langDataGraph, nil
 }
 
 //
 //
 //
+func GetDataFromApi() (langDataGraph string, err error) {
+	data, err := hourUnit.GetHours(WAKATIME_API_KEY)
+	if err != nil {
+		return "", err
+	}
+	langDataGraph = langGraphGen(data.Data.Languages, true)
+	return langDataGraph, err
+}
 
 //
 //
 // This Function Generates the ascii graph
 
-func langGraphGen(langDataSlice []Language) string {
+func langGraphGen(langDataSlice []hourUnit.Language, isApi bool) string {
 	var buf bytes.Buffer
 	for _, item := range langDataSlice {
+		if isApi {
+			pMod := item.Percent / 3
+			fmt.Println(len(item.Name), 8-len(fmt.Sprintf("%.2f", item.Percent)))
 
-		pMod := item.Percent / 3
-		fmt.Println(len(item.Name), 8-len(fmt.Sprintf("%.2f", item.Percent)))
+			fmt.Fprint(&buf,
+				item.Name,
+				strings.Repeat(" ", 15-len(item.Name)),
+				fmt.Sprintf("%v", item.Text),
+				strings.Repeat(" ", 15-len(fmt.Sprintf("%v", item.Text))),
+				strings.Repeat("█", int(pMod)),
+				strings.Repeat("░", int(100/3-pMod)),
+			)
+			fmt.Fprint(&buf, "\n")
+		} else {
+			pMod := item.Percent / 3
+			fmt.Println(len(item.Name), 8-len(fmt.Sprintf("%.2f", item.Percent)))
 
-		fmt.Fprint(&buf,
-			item.Name,
-			strings.Repeat(" ", 15-len(item.Name)),
-			fmt.Sprintf("%.2f", item.Percent),
-			strings.Repeat(" ", 8-len(fmt.Sprintf("%.2f", item.Percent))),
-			strings.Repeat("█", int(pMod)),
-			strings.Repeat("░", int(100/3-pMod)),
-		)
-		fmt.Fprint(&buf, "\n")
+			fmt.Fprint(&buf,
+				item.Name,
+				strings.Repeat(" ", 15-len(item.Name)),
+				fmt.Sprintf("%.2f", item.Percent),
+				strings.Repeat(" ", 8-len(fmt.Sprintf("%.2f", item.Percent))),
+				strings.Repeat("█", int(pMod)),
+				strings.Repeat("░", int(100/3-pMod)),
+			)
+			fmt.Fprint(&buf, "\n")
+		}
 
 	}
 	fmt.Println(buf.String())
@@ -124,7 +154,7 @@ func langGraphGen(langDataSlice []Language) string {
 func gistUpdater(content string) (err error) {
 
 	reqBody, err := json.Marshal(map[string]interface{}{
-		"description": "Weekly Coding Stats 📈",
+		"description": "📈 Weekly Coding Stats 📈",
 		"files": map[string]interface{}{
 			"coding_loop": map[string]interface{}{
 				"content":  content,
@@ -136,22 +166,22 @@ func gistUpdater(content string) (err error) {
 	if err != nil {
 		log.Fatal("failed to marshal json", err)
 	}
-
-	req, err := http.NewRequest("PATCH", "https://api.github.com/gists/"+GIST_ID, bytes.NewBuffer(reqBody))
+	fmt.Println("Gist ID is " + CODING_STAT_GIST_ID)
+	req, err := http.NewRequest("PATCH", "https://api.github.com/gists/"+CODING_STAT_GIST_ID, bytes.NewBuffer(reqBody))
 	if err != nil {
 		return fmt.Errorf("failed to create request %v", err)
 	}
-	fmt.Println("test 1")
+
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "Incrypto")
 	// fmt.Println(os.Getenv("GIST_TOKEN"))
-	req.SetBasicAuth("", os.Getenv("GIST_TOKEN"))
-	fmt.Println("test 2")
+	req.SetBasicAuth("", GIST_TOKEN)
+
 	client := http.Client{
 		Timeout: time.Duration(5 * time.Second),
 	}
 	resp, err := client.Do(req)
-	fmt.Println("test 3")
+	fmt.Println(resp.Status)
 	if resp.StatusCode != http.StatusOK {
 		return errors.New("RESP_ERROR")
 	}
