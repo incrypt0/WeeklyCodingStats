@@ -2,7 +2,7 @@ name: Update gist with Todoist items
 on:
   push:
   schedule:
-    - cron: '0 */3 * * *' # Every three hours
+    - cron: '0 */1 * * *' # Every three hours
 jobs:
   update-gist:
     runs-on: ubuntu-latest
@@ -16,4 +16,4 @@ jobs:
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           GIST_ID: ${{ secrets.GIST_ID }}
           WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
-          WAKATIME_EMBED_URL:${{ secrets.WAKATIME_EMBED_URL}}
+          WAKATIME_EMBED_URL: ${{ secrets.WAKATIME_EMBED_URL}}
