@@ -32,6 +32,9 @@ func main() {
 		langDataGraph, _ = GetDataFromApi()
 	} else {
 		fmt.Println("Using Embed Url")
+		if WAKATIME_EMBED_URL == "" {
+			log.Fatal("Error WAKATIME_EMBED_URL env Empty")
+		}
 		langDataGraph, _ = GetDataFromEmbedUrl()
 	}
 
