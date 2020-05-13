@@ -1,9 +1,9 @@
 name : Coding Stats Gist Updater
 on:
-  push:
-    branches: [ master]
+  # push:
+  #   branches: [ master]
   schedule:
-    - cron: '5 16 * * *'
+    - cron: '15 16 * * *'
 
 jobs:
   coding_stats:
