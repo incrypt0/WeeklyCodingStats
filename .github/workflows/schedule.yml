@@ -13,13 +13,15 @@ jobs:
         with:
           go-version: '1.14.2'
           
-        name: run task
-      - run: echo $GIST_TOKEN
-      - run: go run main.go
-      - run: echo $GIST_TOKEN
+      - name: run task
+        run: |
+          echo $GIST_TOKEN
+          go run main.go
+          echo $GIST_TOKEN
         env: 
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           GIST_ID: ${{ secrets.GIST_ID }}
           WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
-          WAKATIME_EMBED_URL: ${{ secrets.WAKATIME_EMBED_URL }}
+          WAKATIME_EMBED_URL: ${{ secrets.WAKATIME_EMBED_URL }} 
+       
                                   
