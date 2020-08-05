@@ -125,7 +125,10 @@ func langGraphGen(langDataSlice []hourUnit.Language, isApi bool) string {
 		if isApi {
 			pMod := item.Percent / 3
 			fmt.Println(len(item.Name), 8-len(fmt.Sprintf("%.2f", item.Percent)))
-
+			if len(item.Name) > 15 {
+				item.Name = item.Name[0:14]
+			}
+			fmt.Println(item.Name)
 			fmt.Fprint(&buf,
 				item.Name,
 				strings.Repeat(" ", 15-len(item.Name)),
